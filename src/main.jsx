@@ -9,14 +9,14 @@ function App(){const[dark,setDark]=useState(true),[amount,setAmount]=useState(5)
 async function market(){
   try{
     const response = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=io-net,binancecoin&vs_currencies=usd"
+     https://api.coingecko.com/api/v3/simple/price?ids=io,binancecoin&vs_currencies=usd
     );
 
     if(!response.ok) throw new Error("Market data request failed");
 
     const data = await response.json();
 
-    setIo(data["io-net"]?.usd ?? null);
+    setIo(data["io"]?.usd ?? null);
     setBnb(data["binancecoin"]?.usd ?? null);
   }catch(error){
     console.error("Market data error:", error);
