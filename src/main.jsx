@@ -6,7 +6,24 @@ const rel=(d,now=Date.now())=>{let m=Math.max(0,Math.floor((now-d.getTime())/6e4
 const money=v=>v==null?"—":new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:v<1?4:2}).format(v);
 const tok=v=>v?new Intl.NumberFormat("en-US",{maximumFractionDigits:4}).format(v):"—";
 function App(){const[dark,setDark]=useState(true),[amount,setAmount]=useState(5),[io,setIo]=useState(null),[bnb,setBnb]=useState(null),[state,setState]=useState("loading"),[updated,setUpdated]=useState(null),[items,setItems]=useState(seed),[modal,setModal]=useState(false),[wallet,setWallet]=useState(false),[copied,setCopied]=useState(false),[now,setNow]=useState(Date.now());
-async function market(){setState("loading");try{let r=await fetch("https://api.coingecko.com/api/v3/simple/price?ids=io-net,binancecoin&vs_currencies=usd");if(!r.ok)throw 0;let d=await r.json();if(!d["io-net"]?.usd||!d.binancecoin?.usd)throw 0;setIo(d["io-net"].usd);setBnb(d.binancecoin.usd);setUpdated(Date.now());setState("live")}catch{setState("unavailable")}}
+async function market(){
+  try{
+    const response = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=io-net,binancecoin&vs_currencies=usd"
+    );
+
+    if(!response.ok) throw new Error("Market data request failed");
+
+    const data = await response.json();
+
+    setIo(data["io-net"]?.usd ?? null);
+    setBnb(data["binancecoin"]?.usd ?? null);
+  }catch(error){
+    console.error("Market data error:", error);
+    setIo(null);
+    setBnb(null);
+  }
+}
 useEffect(()=>{market();let x=setInterval(market,6e4);return()=>clearInterval(x)},[]);
 useEffect(()=>{let x=setInterval(()=>setNow(Date.now()),3e4);return()=>clearInterval(x)},[]);
 useEffect(()=>{let x=setInterval(()=>setItems(p=>[{id:String(Date.now()),amount:amounts[Math.floor(Math.random()*amounts.length)],time:new Date()},...p].slice(0,20)),9e4);return()=>clearInterval(x)},[]);
