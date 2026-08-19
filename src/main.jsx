@@ -8,21 +8,26 @@ const tok=v=>v?new Intl.NumberFormat("en-US",{maximumFractionDigits:4}).format(v
 function App(){const[dark,setDark]=useState(true),[amount,setAmount]=useState(5),[io,setIo]=useState(null),[bnb,setBnb]=useState(null),[state,setState]=useState("loading"),[updated,setUpdated]=useState(null),[items,setItems]=useState(seed),[modal,setModal]=useState(false),[wallet,setWallet]=useState(false),[copied,setCopied]=useState(false),[now,setNow]=useState(Date.now());
 async function market(){
   try{
-    const response = await fetch(
-     https://api.coingecko.com/api/v3/simple/price?ids=io,binancecoin&vs_currencies=usd
-    );
+    const [ioResponse,bnbResponse] = await Promise.all([
+      fetch("https://data-api.binance.vision/api/v3/ticker/price?symbol=IOUSDT"),
+      fetch("https://data-api.binance.vision/api/v3/ticker/price?symbol=BNBUSDT")
+    ]);
 
-    if(!response.ok) throw new Error("Market data request failed");
+    if(!ioResponse.ok || !bnbResponse.ok){
+      throw new Error("Market data request failed");
+    }
 
-    const data = await response.json();
+    const ioData = await ioResponse.json();
+    const bnbData = await bnbResponse.json();
 
-    setIo(data["io"]?.usd ?? null);
-    setBnb(data["binancecoin"]?.usd ?? null);
+    setIo(Number(ioData.price));
+    setBnb(Number(bnbData.price));
   }catch(error){
-    console.error("Market data error:", error);
+    console.error("Market data error:",error);
     setIo(null);
     setBnb(null);
   }
+}
 }
 useEffect(()=>{market();let x=setInterval(market,6e4);return()=>clearInterval(x)},[]);
 useEffect(()=>{let x=setInterval(()=>setNow(Date.now()),3e4);return()=>clearInterval(x)},[]);
