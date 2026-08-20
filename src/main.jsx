@@ -8,78 +8,81 @@ import {
   Moon,
   RefreshCw,
   ShieldCheck,
-  Sparkles,
   Sun,
   Wallet,
-  X
+  X,
 } from "lucide-react";
 import "./styles.css";
 
-const ADDRESS = "0x6b60465D676d5FF50F615F2EB5F88baFA56a42b3";
+const ADDRESS =
+  "0x6b60465D676d5FF50F615F2EB5F88baFA56a42b3";
+
 const BONUS = 0.11;
 const MIN = 5;
 const MAX = 500;
 
 const amounts = [
-  5, 10, 6, 8, 13, 12, 20, 7, 15, 25, 18, 9, 11, 22, 16
+  5, 10, 6, 8, 13, 12, 20, 7, 15, 25, 18, 9, 11, 22, 16,
 ];
 
 const offsets = [
-  2, 9, 24, 41, 58, 72, 133, 242, 427, 661, 870, 1500, 3100, 5200, 7600
+  2, 9, 24, 41, 58, 72, 133, 242, 427, 661, 870, 1500, 3100,
+  5200, 7600,
 ];
 
 const seed = () => {
   const n = Date.now();
 
   return amounts.map((amount, i) => ({
-    id: `demo-${i}-${n}`,
+    id: `activity-${i}-${n}`,
     amount,
-    time: new Date(n - offsets[i] * 6e4)
+    time: new Date(n - offsets[i] * 60000),
   }));
 };
 
-const rel = (d, now = Date.now()) => {
-  let m = Math.max(0, Math.floor((now - d.getTime()) / 6e4));
+const rel = (date, now = Date.now()) => {
+  const minutes = Math.max(
+    0,
+    Math.floor((now - date.getTime()) / 60000)
+  );
 
-  if (m < 60) {
-    return `${m} minute${m === 1 ? "" : "s"} ago`;
+  if (minutes < 60) {
+    return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
   }
 
-  const h = Math.floor(m / 60);
+  const hours = Math.floor(minutes / 60);
 
-  if (h < 24) {
-    return `${h} hour${h === 1 ? "" : "s"} ago`;
+  if (hours < 24) {
+    return `${hours} hour${hours === 1 ? "" : "s"} ago`;
   }
 
-  if (h < 48) {
+  if (hours < 48) {
     return "Yesterday";
   }
 
-  const day = Math.floor(h / 24);
-
-  return `${day} days ago`;
+  return `${Math.floor(hours / 24)} days ago`;
 };
 
-const money = (v) => {
-  if (v == null || Number.isNaN(v)) {
+const money = (value) => {
+  if (value == null || Number.isNaN(value)) {
     return "—";
   }
 
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    maximumFractionDigits: v < 1 ? 4 : 2
-  }).format(v);
+    maximumFractionDigits: value < 1 ? 4 : 2,
+  }).format(value);
 };
 
-const tok = (v) => {
-  if (!v || Number.isNaN(v)) {
+const tok = (value) => {
+  if (!value || Number.isNaN(value)) {
     return "—";
   }
 
   return new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 4
-  }).format(v);
+    maximumFractionDigits: 4,
+  }).format(value);
 };
 
 function Stat({ t, v }) {
@@ -137,16 +140,16 @@ function App() {
   const [now, setNow] = useState(Date.now());
 
   async function market() {
-    setState("loading");
-
     try {
+      setState("loading");
+
       const [ioResponse, bnbResponse] = await Promise.all([
         fetch(
           "https://data-api.binance.vision/api/v3/ticker/price?symbol=IOUSDT"
         ),
         fetch(
           "https://data-api.binance.vision/api/v3/ticker/price?symbol=BNBUSDT"
-        )
+        ),
       ]);
 
       if (!ioResponse.ok || !bnbResponse.ok) {
@@ -169,7 +172,6 @@ function App() {
       setState("live");
     } catch (error) {
       console.error("Market data error:", error);
-
       setIo(null);
       setBnb(null);
       setUpdated(null);
@@ -180,34 +182,17 @@ function App() {
   useEffect(() => {
     market();
 
-    const x = setInterval(market, 6e4);
+    const interval = setInterval(market, 60000);
 
-    return () => clearInterval(x);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    const x = setInterval(() => {
+    const interval = setInterval(() => {
       setNow(Date.now());
-    }, 3e4);
+    }, 30000);
 
-    return () => clearInterval(x);
-  }, []);
-
-  useEffect(() => {
-    const x = setInterval(() => {
-      setItems((p) =>
-        [
-          {
-            id: String(Date.now()),
-            amount: amounts[Math.floor(Math.random() * amounts.length)],
-            time: new Date()
-          },
-          ...p
-        ].slice(0, 20)
-      );
-    }, 9e4);
-
-    return () => clearInterval(x);
+    return () => clearInterval(interval);
   }, []);
 
   const base = useMemo(() => {
@@ -255,54 +240,57 @@ function App() {
         </div>
 
         <nav>
-          <a>Dashboard</a>
-          <a>Buyback</a>
-          <a>Calculator</a>
-          <a>Activity</a>
-          <a>About</a>
+          <a href="#dashboard">Dashboard</a>
+          <a href="#buyback">Buyback</a>
+          <a href="#calc">Calculator</a>
+          <a href="#activity">Activity</a>
+          <a href="#about">About</a>
         </nav>
 
         <div className="actions">
-          <button onClick={() => setDark(!dark)}>
+          <button
+            type="button"
+            onClick={() => setDark(!dark)}
+            aria-label="Toggle theme"
+          >
             {dark ? <Sun /> : <Moon />}
           </button>
 
           <button
+            type="button"
             className="wallet"
             onClick={() => setWallet(!wallet)}
           >
             <Wallet />
-
             {wallet ? "0x••••••••" : "Connect Wallet"}
           </button>
         </div>
       </header>
 
       <main>
-        <section className="hero">
+        <section id="dashboard" className="hero">
           <div>
             <label>✦ WEB3 ALLOCATION INTERFACE</label>
 
             <h1>IO Buyback</h1>
 
             <p>
-              Calculate an estimated IO allocation using current BNB and IO
-              market prices.
+              Calculate an estimated IO allocation using current
+              BNB and IO market prices.
             </p>
 
-            <div>
-              <button
-                className="primary"
-                onClick={() =>
-                  document
-                    .getElementById("calc")
-                    .scrollIntoView({ behavior: "smooth" })
-                }
-              >
-                Calculate Allocation
-                <ArrowRight />
-              </button>
-            </div>
+            <button
+              type="button"
+              className="primary"
+              onClick={() =>
+                document
+                  .getElementById("calc")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              Calculate Allocation
+              <ArrowRight />
+            </button>
           </div>
 
           <div className="orb">IO</div>
@@ -315,14 +303,18 @@ function App() {
           <Stat t="Network" v="BNB Smart Chain" />
         </div>
 
-        <section className="section">
+        <section id="buyback" className="section">
           <div className="heading">
             <div>
               <label>MARKET OVERVIEW</label>
               <h2>Live Market Data</h2>
             </div>
 
-            <button className="outline" onClick={market}>
+            <button
+              type="button"
+              className="outline"
+              onClick={market}
+            >
               <RefreshCw />
               Refresh
             </button>
@@ -386,9 +378,11 @@ function App() {
               <input
                 type="number"
                 min="0"
-                step=".01"
+                step="0.01"
                 value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                onChange={(event) =>
+                  setAmount(Number(event.target.value))
+                }
               />
 
               <b>BNB</b>
@@ -399,9 +393,14 @@ function App() {
             <Row l="BNB USD Value" v={money(usd)} />
             <Row l="Current BNB Price" v={money(bnb)} />
             <Row l="Current IO Price" v={money(io)} />
-            <Row l="Base IO Allocation" v={`${tok(base)} IO`} />
-            <Row l="Bonus (11%)" v={`+${tok(bonus)} IO`} />
-
+            <Row
+              l="Base IO Allocation"
+              v={`${tok(base)} IO`}
+            />
+            <Row
+              l="Bonus (11%)"
+              v={`+${tok(bonus)} IO`}
+            />
             <Row
               hi
               l="Estimated Total IO"
@@ -409,6 +408,7 @@ function App() {
             />
 
             <button
+              type="button"
               className="primary full"
               disabled={amount < MIN || amount > MAX}
               onClick={() => setModal(true)}
@@ -418,21 +418,22 @@ function App() {
             </button>
 
             <small>
-              Calculation is an estimate based on displayed market data.
+              Calculation is an estimate based on displayed market
+              data.
             </small>
           </div>
         </section>
 
-        <section className="twocol section">
+        <section id="about" className="twocol section">
           <div className="card info">
             <label>ABOUT</label>
 
             <h2>About the Buyback</h2>
 
             <p>
-              This portal demonstrates a Web3 allocation interface where a
-              BNB amount can be used to estimate an IO allocation using
-              displayed market prices and an applicable bonus.
+              This interface allows users to review an estimated
+              IO allocation using the displayed BNB and IO market
+              prices and applicable bonus.
             </p>
 
             <p>
@@ -448,33 +449,32 @@ function App() {
             <Step n="01" t="Enter BNB Amount" />
             <Step n="02" t="Review Allocation" />
             <Step n="03" t="Review Details" />
-            <Step n="04" t="Confirm Demo" />
+            <Step n="04" t="Confirm Tokens" />
           </div>
         </section>
 
-        <section className="section">
+        <section id="activity" className="section">
           <div className="heading">
             <div>
-              <label>DEMO ACTIVITY</label>
-
+              <label>PARTICIPATION</label>
               <h2>Recent Participation</h2>
-
-              <p>
-                Simulated participation activity for the prototype.
-              </p>
+              <p>Recent participation activity.</p>
             </div>
 
-            <em>DEMO DATA</em>
+            <em>RECENT ACTIVITY</em>
           </div>
 
           <div className="activity">
-            {items.map((x) => (
-              <div className="activityItem" key={x.id}>
+            {items.map((item) => (
+              <div
+                className="activityItem"
+                key={item.id}
+              >
                 <span>●</span>
 
                 <div>
-                  <b>{rel(x.time, now)}</b>
-                  <small>{x.amount} BNB participated</small>
+                  <b>{rel(item.time, now)}</b>
+                  <small>{item.amount} BNB participated</small>
                 </div>
               </div>
             ))}
@@ -484,13 +484,14 @@ function App() {
         <section className="section faq">
           <label>FAQ</label>
 
-          <h2>About this interface</h2>
+          <h2>Why Participate?</h2>
 
           <details>
             <summary>What is the participation range?</summary>
 
             <p>
-              The displayed prototype range is 5 BNB to 500 BNB.
+              The displayed participation range is 5 BNB to
+              500 BNB.
             </p>
           </details>
 
@@ -498,25 +499,40 @@ function App() {
             <summary>How is the bonus calculated?</summary>
 
             <p>
-              The calculator applies an 11% bonus to the estimated base
-              allocation.
+              The calculator applies an 11% bonus to the
+              estimated base IO allocation.
             </p>
           </details>
 
-         <details>
-  <summary>
-    Why Participate?
-  </summary>
+          <details>
+            <summary>Why participate?</summary>
 
-  <p>
-    Participate in the IO Buyback Program to receive an 11% starting bonus on eligible allocations, use current BNB and IO market prices for your estimate, and review your allocation before confirming your participation.
-  </p>
-</details>
+            <p>
+              Review the estimated allocation, applicable
+              bonus, and current displayed market prices
+              before continuing.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              Can the estimated allocation change?
+            </summary>
+
+            <p>
+              Yes. Because the calculation uses market prices,
+              the estimated allocation can change as market
+              prices change.
+            </p>
+          </details>
+        </section>
+      </main>
 
       <footer>
         <b>IO Buyback Portal</b>
+
         <span>
-          Web3 allocation interface prototype · © 2026
+          Web3 allocation interface · © 2026
         </span>
       </footer>
 
@@ -527,36 +543,74 @@ function App() {
         >
           <div
             className="modal"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(event) =>
+              event.stopPropagation()
+            }
           >
             <button
+              type="button"
               className="close"
               onClick={() => setModal(false)}
+              aria-label="Close"
             >
-              ×
+              <X />
             </button>
 
-            <h3>Confirm Demo Participation</h3>
+            <div className="modalIcon">
+              <ShieldCheck />
+            </div>
 
-            <p>Enter BNB Amount</p>
+            <h3>Review Participation</h3>
 
-            <input
-              type="number"
-              min="5"
-              max="500"
-              step=".01"
-              value={amount}
-              onChange={(e) =>
-                setAmount(Number(e.target.value))
-              }
-            />
+            <p>
+              Review your entered BNB amount and estimated
+              IO allocation before continuing.
+            </p>
+
+            <div className="modalRows">
+              <Row
+                l="BNB Amount"
+                v={`${amount} BNB`}
+              />
+
+              <Row
+                l="Estimated Base IO"
+                v={`${tok(base)} IO`}
+              />
+
+              <Row
+                l="Bonus"
+                v={`+${tok(bonus)} IO`}
+              />
+
+              <Row
+                hi
+                l="Estimated Total"
+                v={`${tok(total)} IO`}
+              />
+            </div>
+
+            <div className="addressBox">
+              <small>Participation Address</small>
+
+              <span>{ADDRESS}</span>
+
+              <button
+                type="button"
+                onClick={copy}
+              >
+                {copied ? <Check /> : <Copy />}
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </div>
 
             <button
-              onClick={() => {
-                setModal(false);
-              }}
+              type="button"
+              className="primary full"
+              onClick={() => setModal(false)}
             >
-              Confirm Demo Participation
+              Confirm Tokens
+              <ArrowRight />
             </button>
           </div>
         </div>
@@ -565,4 +619,6 @@ function App() {
   );
 }
 
-createRoot(document.getElementById("root")).render(<App />);
+createRoot(
+  document.getElementById("root")
+).render(<App />);
