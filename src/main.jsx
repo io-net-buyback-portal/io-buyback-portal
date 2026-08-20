@@ -503,17 +503,15 @@ function App() {
             </p>
           </details>
 
-          <details>
-            <summary>
-              Are the activity entries real blockchain transactions?
-            </summary>
+         <details>
+  <summary>
+    Why Participate?
+  </summary>
 
-            <p>
-              No. The activity feed is simulated demo data.
-            </p>
-          </details>
-        </section>
-      </main>
+  <p>
+    Participate in the IO Buyback Program to receive an 11% starting bonus on eligible allocations, use current BNB and IO market prices for your estimate, and review your allocation before confirming your participation.
+  </p>
+</details>
 
       <footer>
         <b>IO Buyback Portal</b>
