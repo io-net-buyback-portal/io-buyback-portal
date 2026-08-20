@@ -5,6 +5,10 @@ const seed=()=>{const n=Date.now();return amounts.map((amount,i)=>({id:`demo-${i
 const rel=(d,now=Date.now())=>{let m=Math.max(0,Math.floor((now-d.getTime())/6e4));if(m<60)return`${m} minute${m===1?"":"s"} ago`;let h=Math.floor(m/60);if(h<24)return`${h} hour${h===1?"":"s"} ago`;if(h<48)return"Yesterday";let day=Math.floor(h/24);return`${day} days ago`};
 const money=v=>v==null?"—":new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:v<1?4:2}).format(v);
 const tok=v=>v?new Intl.NumberFormat("en-US",{maximumFractionDigits:4}).format(v):"—";
+function Stat({t,v}){return <div className="stat-card"><small>{t}</small><strong>{v}</strong></div>}
+function Market({name,sym,price,state}){return <div className="card market"><b>{name}</b><small>{sym}</small><strong>{price}</strong><small>{state}</small></div>}
+function Row({l,v,hi}){return <div className={hi?"row hi":"row"}><span>{l}</span><b>{v}</b></div>}
+function Step({n,t}){return <div className="step"><b>{n}</b><span><strong>{t}</strong><small>Review the information carefully</small></span></div>}
 function App(){const[dark,setDark]=useState(true),[amount,setAmount]=useState(5),[io,setIo]=useState(null),[bnb,setBnb]=useState(null),[state,setState]=useState("loading"),[updated,setUpdated]=useState(null),[items,setItems]=useState(seed),[modal,setModal]=useState(false),[wallet,setWallet]=useState(false),[copied,setCopied]=useState(false),[now,setNow]=useState(Date.now());
 async function market(){
   try{
@@ -44,8 +48,5 @@ return <div className={dark?"app dark":"app"}><header><div className="brand"><b>
 <section className="section faq"><label>FAQ</label><h2>About this interface</h2><details><summary>What is the participation range?</summary><p>The displayed prototype range is 5 BNB to 500 BNB.</p></details><details><summary>How is the bonus calculated?</summary><p>The calculator applies an 11% bonus to the estimated base allocation.</p></details><details><summary>Are the activity entries real blockchain transactions?</summary><p>No. The activity feed is simulated demo data.</p></details></section></main>
 <footer><b>IO Buyback Portal</b><span>Web3 allocation interface prototype · © 2026</span></footer>{modal&&<div className="overlay" onClick={()=>setModal(false)}><div className="modal" onClick={e=>e.stopPropagation()}><button className="close" onClick={()=>setModal(false)}>×</button>
 <div className="modal" onClick={e=>e.stopPropagation()}><button className="close" onClick={()=>setModal(false)}>×</button><h3>Confirm Demo Participation</h3><p>Review the participation details carefully before confirming.</p><button className="primary full" onClick={()=>{setItems(p=>[{id:String(Date.now()),amount,time:new Date()},...p].slice(0,20));setModal(false)}}>Confirm Demo Participation</button></div></div>}
-function Stat({t,v}){return <div className="stat-card"><small>{t}</small><strong>{v}</strong></div>}
-function Market({name,sym,price,state}){return <div className="card market"><i>{name==="BNB"?"B":"IO"}</i><small>{state==="live"?"LIVE":"MARKET"}</small><h3>{name}</h3><strong>{price}</strong><p>{sym}</p></div>}
-function Row({l,v,hi}){return <div className={hi?"row hi":"row"}><span>{l}</span><b>{v}</b></div>}
-function Step({n,t}){return <div className="step"><b>{n}</b><span><strong>{t}</strong><small>Review the information carefully before proceeding.</small></span></div>}
+
 createRoot(document.getElementById("root")).render(<App/>);
